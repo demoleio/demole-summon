@@ -16,10 +16,16 @@ import { useWeb3React } from "@web3-react/core";
 import { useBalance } from "../hooks/useBalance";
 import ConnectWalletModal from "./ConnectWalletModal";
 import connectors from "../constants/connectors";
+import MenuMobile from '../assests/img/menu_mobile.png'
+import IconClose from '../assests/img/close_24px.png'
 
 const Wrapper = styled.header`
     background-color: #0F1323;
     height: 120px;
+
+    @media only screen and (max-width: 768px) {
+        height: 100px;
+    }
 `;
 
 const ContainerStyled = styled(Container)`
@@ -37,6 +43,27 @@ const Menu = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    @media only screen and (max-width: 768px) {
+        & > .nav {
+            position: fixed;
+			width: 50%;
+			height: 100vh;
+			background-color: #1A1E30;
+			display: block;
+			top: 100px;
+			right: 0;
+			margin-right: -60%;
+			transition: all 0.3s ease-out;
+			padding-left: 20px;
+			padding-top: 20px;
+        }
+
+        & > .is-toggle {
+			margin-right: 0px;
+			z-index: 50;
+		}
+    }
 `;
 
 const NavItemStyled = styled(NavItem)`
@@ -60,6 +87,20 @@ const NavItemStyled = styled(NavItem)`
     &:first-child > a{
         color: #FFB337;
     }
+
+    @media only screen and (max-width: 768px) {
+        display: flex;
+        margin-left: 15px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        align-items: center;
+        justify-content: flex-start;
+        margin-right: 0;
+        a, li {
+            color: white;
+            /* margin-top: 20px; */
+        }
+    }
 `;
 
 const ButtonConnect = styled(Button)`
@@ -67,6 +108,11 @@ const ButtonConnect = styled(Button)`
     color: black;
     font-size: 20px;
     font-weight: bold;
+
+    @media only screen and (max-width: 768px) {
+        font-size: 12px;
+        font-weight: 600;
+    }
 `;
 
 const ChainIcon = styled.div`
@@ -75,11 +121,30 @@ const ChainIcon = styled.div`
     & > img {
         cursor: pointer;
     }
+
+    @media only screen and (max-width: 768px) {
+        margin-right: 10px;
+        & > img {
+            height: 30px;
+        }
+    }
 `
 
 const ConnectWalletWrapper = styled.div`
     display: flex;
     align-items: center;
+
+    & > img {
+        display: none;
+    }
+
+    @media only screen and (max-width: 768px) {
+        & > img {
+            display: block;
+            margin-left: 12px;
+            z-index: 5;
+        }
+    }
 `
 
 const ButtonConnected = styled(Button)`
@@ -98,19 +163,39 @@ const ButtonConnected = styled(Button)`
         height: 38px;
         width: 38px;
     }
+
+    @media only screen and (max-width: 768px) {
+        font-size: 12px;
+
+        & > canvas {
+            height: 20px;
+            width: 20px;
+        }
+    }
 `
 
 const WalletInfo = styled.div`
     position: relative;
 `
 
+const OverlayMobile = styled.div`
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    top: 0;
+    z-index: 1;
+    left: 0;
+`
+
 function Header() {
+    const [toggleMenu, settoggleMenu] = useState(false)
     const [isShowSelectChain, setisShowSelectChain] = useState(false)
     const [isShowWalletInfo, setisShowWalletInfo] = useState(false)
     const [isShowConnectWallet, setisShowConnectWallet] = useState(false)
 
     const chainName = useSelector(selectChainName)
-    const {connector, account, library, deactivate} = useWeb3React()
+    const { connector, account, library, deactivate } = useWeb3React()
     const balance = useBalance(account, library)
     useAvatar(account)
 
@@ -124,17 +209,17 @@ function Header() {
         setisShowWalletInfo(!isShowWalletInfo)
     }
 
-    function onDisconect () {
+    function onDisconect() {
         eraseCookie("connector")
         deactivate()
 
-        if(connector === connectors.walletconnect) {
+        if (connector === connectors.walletconnect) {
             connector.close()
         }
     }
 
     useEffect(() => {
-        if(connector) {
+        if (connector) {
             connector.on("Web3ReactDeactivate", () => {
                 eraseCookie("connector")
             })
@@ -146,7 +231,7 @@ function Header() {
             <ContainerStyled>
                 <Menu>
                     <Link to="/"><Logo src={LogoImg} /></Link>
-                    <Nav>
+                    <Nav className={`nav ${toggleMenu ? 'is-toggle' : ''}`}>
                         <NavItemStyled><Link to="/">Summon</Link></NavItemStyled>
                         <NavItemStyled><a href="https://marketplace.demole.io" target="_blank" rel="noreferrer">Marketplace</a></NavItemStyled>
                         <NavItemStyled><a href="https://stake.demole.io" target="_blank" rel="noreferrer">Stake</a></NavItemStyled>
@@ -170,6 +255,9 @@ function Header() {
 
                             {isShowWalletInfo && <WalletInfoPopover balance={balance} onDisconect={onDisconect}></WalletInfoPopover>}
                         </WalletInfo>}
+
+                        <img src={toggleMenu ? IconClose : MenuMobile} alt="photos" onClick={() => settoggleMenu(!toggleMenu)}></img>
+                        {toggleMenu && <OverlayMobile></OverlayMobile>}
 
                     </ConnectWalletWrapper>
                 </Menu>

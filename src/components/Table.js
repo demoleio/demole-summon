@@ -4,7 +4,7 @@ const Table = styled.div`
     border-radius: 16px;
     display: block;
     background-color: #2B2F40;
-    overflow: hidden;
+    overflow: auto;
     .row-even {
         background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), #8894B8;
     }

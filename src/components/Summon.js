@@ -38,6 +38,22 @@ const Monster = styled.div`
         -webkit-transition: all .5s ease;
         -moz-transition: all .5s ease;
     }
+
+    @media only screen and (max-width: 768px) {
+        height: 100%;
+        margin-top: 50px;
+        overflow: hidden;
+
+        & > video {
+            width: 100%;
+        }
+
+        & > .dragon {
+            right: -10px;
+            top: 60px;
+            width: 80%;
+        }
+    }
 `
 
 export default function Summon(props) {
@@ -68,7 +84,7 @@ export default function Summon(props) {
         seterror(false)
         setloading(false)
         // check connect wallet
-        if(!account) {
+        if (!account) {
             return seterror("Please connect wallet")
         }
         // check balance
@@ -81,17 +97,17 @@ export default function Summon(props) {
         setloading("Check registration...")
         ServerAPI.getProof(chainName, account).then(async proof => {
             const ordered = await contract.methods.ordered(account).call()
-            if(ordered) return seterror("You have already summoned")
+            if (ordered) return seterror("You have already summoned")
             setloading("Waiting for confirmation...")
             contract.methods.order(account.toLowerCase(), proof).send({
                 from: account,
                 value: toWei((BNBRequire + 0.001).toString())
             }).then(result => {
                 setloading("Retrieving tokenId...")
-                let interval = setInterval( async () => {
+                let interval = setInterval(async () => {
                     const tokensOfOwner = await nftContract.methods.tokensOfOwner(account).call()
 
-                    if(tokensOfOwner.length > 0) {
+                    if (tokensOfOwner.length > 0) {
                         clearInterval(interval)
                         setloading(false)
                         setsuccess(`Congratulations! You have received tokenId #${tokensOfOwner[0]}`)

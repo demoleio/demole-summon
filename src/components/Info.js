@@ -30,6 +30,14 @@ const TotalSale = styled.div`
         font-family: "EvilEmpire";
         font-size: 84px;
     }
+
+    @media only screen and (max-width: 768px) {
+        width: 100%;
+
+        & > p{
+            font-size: 60px;
+        }
+    }
 `
 
 const ProgressBarStyled = styled(ProgressBar)`
@@ -53,11 +61,15 @@ const Title = styled.p`
     font-size: 24px;
     margin-top: 42px;
     margin-bottom: 12px;
+
+    @media only screen and (max-width: 576px) {
+        text-align: center;
+    }
 `;
 
 export default function Info(props) {
-    const {isOpen, setisOpen} = props
-    const {library} = useWeb3React()
+    const { isOpen, setisOpen } = props
+    const { library } = useWeb3React()
     const contract = useSaleContract(library)
     const [deadline, setdeadline] = useState(0);
     const [totalSold, settotalSold] = useState(0);
@@ -67,7 +79,7 @@ export default function Info(props) {
     const saleHistories = useSaleHistories(100)
 
     const getSaleInfo = useCallback(async () => {
-        if(!contract) return
+        if (!contract) return
         const promiseArr = [
             contract.methods.totalSale().call(),
             contract.methods.totalSold().call(),
@@ -75,12 +87,12 @@ export default function Info(props) {
 
         const result = await Promise.all(promiseArr)
         // update totalSold and totalSale
-        if(result[0] !== "0") settotalSale(parseInt(result[0]))
+        if (result[0] !== "0") settotalSale(parseInt(result[0]))
         settotalSold(parseInt(result[1]))
     }, [contract])
 
-    const getTimeInfo = useCallback( async () => {
-        if(!contract) return
+    const getTimeInfo = useCallback(async () => {
+        if (!contract) return
 
         const promiseArr = [
             contract.methods.openTime().call(),
@@ -93,7 +105,7 @@ export default function Info(props) {
         const closeTime = parseInt(result[1]) * 1000
         const currentTime = new Date().getTime()
 
-        if(currentTime >= openTime) {
+        if (currentTime >= openTime) {
             setisOpen(true)
             setdeadline(closeTime)
         } else {
@@ -110,10 +122,10 @@ export default function Info(props) {
         getTimeInfo()
     }, [contract, getTimeInfo]);
 
-    function onCountdownEnd () {
+    function onCountdownEnd() {
         getTimeInfo()
     }
-    
+
     const saleHistoriesParsed = saleHistories.map(value => {
         return {
             address: value.user,
@@ -133,28 +145,31 @@ export default function Info(props) {
             <Countdown deadline={deadline} onEnd={onCountdownEnd}></Countdown>
             <Title>Sale History</Title>
             <Table>
-                <div className="table-title">
-                    <div style={{minWidth: 220}}>
-                        <p>Buyer</p>
+                <div style={{minWidth: 600}}>
+                    <div className="table-title">
+                        <div style={{ minWidth: 220 }}>
+                            <p>Buyer</p>
+                        </div>
+                        <div>
+                            <p>Price {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
+                        </div>
+                        <div>
+                            <p>Time</p>
+                        </div>
                     </div>
-                    <div>
-                        <p>Price {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
-                    </div>
-                    <div>
-                        <p>Time</p>
+                    <div className="table-item">
+                        {saleHistoriesParsed.map((value, index) => {
+                            return (
+                                <div key={index} className={`${index % 2 === 0 ? "row-even" : ""} table-row`}>
+                                    <a style={{ minWidth: 220 }} href={`${CHAIN_CONFIG[chainName].EXPLORER_URL}/address/${value.address}`} target="_blank" rel="noreferrer">{value.buyer}</a>
+                                    <p>{value.price} {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
+                                    <p>{value.time}</p>
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
-                <div className="table-item">
-                    {saleHistoriesParsed.map((value, index) => {
-                        return (
-                            <div key={index} className={`${index % 2 === 0 ? "row-even" : ""} table-row`}>
-                                <a style={{minWidth: 220}} href={`${ CHAIN_CONFIG[chainName].EXPLORER_URL }/address/${value.address}`} target="_blank" rel="noreferrer">{value.buyer}</a>
-                                <p>{value.price} {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
-                                <p>{value.time}</p>
-                            </div>
-                        )
-                    })}
-                </div>
+
 
             </Table>
         </Wrapper>
