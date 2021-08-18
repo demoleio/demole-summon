@@ -37,6 +37,11 @@ const Wrapper = styled.div`
             margin-bottom: 0px;
         }
     }
+
+    @media only screen and (max-width: 768px) {
+        right: -100px;
+        z-index: 10;
+    }
 `;
 
 export default function SelectChainPopover(props) {

@@ -24,6 +24,11 @@ const Wrapper = styled.div`
         font-size: 16px;
         margin-bottom: 16px;
     }
+
+    @media only screen and (max-width: 768px) {
+        right: -25px;
+        z-index: 10;
+    }
    
 `;
 

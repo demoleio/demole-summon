@@ -41,6 +41,22 @@ const Monster = styled.div`
         -webkit-transition: all .5s ease;
         -moz-transition: all .5s ease;
     }
+
+    @media only screen and (max-width: 768px) {
+        height: 100%;
+        margin-top: 50px;
+        overflow: hidden;
+
+        & > video {
+            width: 100%;
+        }
+
+        & > .dragon {
+            right: -10px;
+            top: 60px;
+            width: 80%;
+        }
+    }
 `
 
 export default function Summon(props) {
