@@ -12,8 +12,6 @@ import ButtonSummon from "./ButtonSummon";
 import Alert from "./Alert";
 import useNFTContract from "../hooks/useNFTContract";
 import useUserState from "../hooks/useUserState";
-import WrongNetworkModal from "./WrongNetworkModal";
-import { CHAIN_CONFIG } from "../constants";
 
 const Wrapper = styled.section`
     border-radius: 20px;

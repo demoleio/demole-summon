@@ -240,7 +240,7 @@ function Header() {
                         <NavItemStyled><a href="https://demole.io" target="_blank" rel="noreferrer">Community</a></NavItemStyled>
                     </Nav>
 
-                    <ConnectWalletWrapper>
+                    <ConnectWalletWrapper className="header-action">
                         <ChainIcon>
                             <img onClick={() => onClickChain()} src={chainName === "bsc" ? BinanceIcon : PolygonIcon} alt="photos"></img>
                             {isShowSelectChain && <SelectChainPopover></SelectChainPopover>}
@@ -250,7 +250,7 @@ function Header() {
 
                         {account && <WalletInfo>
                             <ButtonConnected onClick={() => onClickWallet()}>
-                                <p>{formatCurrency(balance)} {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
+                                <p>{formatCurrency(balance, 2)} {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
                                 <canvas className="blockie"></canvas>
                             </ButtonConnected>
 

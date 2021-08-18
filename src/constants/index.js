@@ -17,4 +17,4 @@ export const CHAIN_CONFIG = {
     }
 }
 
-export const API_ENDPOINT = "http://localhost:5000"
+export const API_ENDPOINT = "https://api.demole.io"

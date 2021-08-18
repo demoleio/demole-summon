@@ -160,7 +160,7 @@ export default function Info(props) {
                             return (
                                 <div key={index} className={`${index % 2 === 0 ? "row-even" : ""} table-row`}>
                                     <a style={{ minWidth: 220 }} href={`${CHAIN_CONFIG[chainName].EXPLORER_URL}/address/${value.address}`} target="_blank" rel="noreferrer">{value.buyer}</a>
-                                    <p>{value.price} {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
+                                    <p>{ formatCurrency( value.price, 2)} {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
                                     <p>{value.time}</p>
                                 </div>
                             )

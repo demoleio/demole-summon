@@ -52,7 +52,7 @@ export default function ConnectWalletModal(props) {
     const modalBodyRef = useRef(null)
     const [connecting, setconnecting] = useState(false);
 
-    const {activate} = useWeb3React()
+    const {activate, account} = useWeb3React()
 
     useEffect(() => {
         const modalHeight = modalBodyRef.current.clientHeight
@@ -60,8 +60,8 @@ export default function ConnectWalletModal(props) {
         modalBodyRef.current.style.transition = `height 0.6s ease`
         setTimeout( () => {
             modalBodyRef.current.style.height = `${modalHeight}px`
-        }, 100) 
-    }, []);
+        }, 100)
+    }, [account]);
 
     function onConnect(connectorName) {
         setconnecting(connectorName)

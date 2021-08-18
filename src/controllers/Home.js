@@ -27,7 +27,7 @@ const ContainerStyled = styled(Container)`
 `;
 
 function Home() {
-    const {connector, active, activate, chainId} = useWeb3React()
+    const {connector, active, activate, chainId, error} = useWeb3React()
     const connectorName = getCookie("connector")
     const chainName = getCookie("chainName")
     const [isOpen, setisOpen] = useState(false);
@@ -45,17 +45,33 @@ function Home() {
                 connectors["network"].changeChainId(CHAIN_CONFIG[chainName].CHAIN_ID)
                 activate(connectors["network"])
             }
+        } else {
+            // Auto switch network when change network on wallet
+            // if(chainId !== CHAIN_CONFIG[chainName].CHAIN_ID) {
+            //     Object.keys(CHAIN_CONFIG).map( key => {
+            //         if(chainId === CHAIN_CONFIG[key].CHAIN_ID) {
+            //             setCookie("chainName", key)
+            //             window.location.reload()
+            //         }
+            //         return true
+            //     })
+            // }
+
+            if(CHAIN_CONFIG[chainName].CHAIN_ID !== chainId) {
+                document.getElementsByClassName("header-action")[0].style["z-index"] = 11
+            }
+
+            if(!connectorName) {
+                Object.keys(connectors).map(key => {
+                    if(connector === connectors[key] && key !== "network") {
+                        setCookie("connector", key)
+                    }
+                    return key
+                })
+            }
         }
 
-        if(active && !connectorName) {
-            Object.keys(connectors).map(key => {
-                if(connector === connectors[key] && key !== "network") {
-                    setCookie("connector", key)
-                }
-                return key
-            })
-        }
-    }, [chainId]);
+    }, [chainId, active, activate, chainName, connector, connectorName, error]);
 
     return (
         <Wrapper>
@@ -69,7 +85,7 @@ function Home() {
                         <Info isOpen={isOpen} setisOpen={setisOpen}/>
                     </Col>
                 </Row>
-                {CHAIN_CONFIG[chainName].CHAIN_ID !== chainId && <WrongNetworkModal></WrongNetworkModal>}
+                {(chainId && CHAIN_CONFIG[chainName].CHAIN_ID !== chainId) && <WrongNetworkModal></WrongNetworkModal>}
             </ContainerStyled>
         </Wrapper>
     );
