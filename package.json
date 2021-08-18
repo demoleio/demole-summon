@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@apollo/client": "^3.4.7",
     "@ethersproject/providers": "^5.4.3",
     "@reduxjs/toolkit": "^1.6.1",
     "@web3-react/core": "^6.1.9",

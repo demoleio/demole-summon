@@ -7,11 +7,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import removePartOfString, { formatCurrency, timeDifference } from "../utils";
 import { fromWei } from "web3-utils";
-import useBlockNumber from "../hooks/useBlockNumber";
 import { CHAIN_CONFIG } from "../constants";
 import { selectChainName } from "../redux/chainName";
 import { useSelector } from "react-redux";
-import useSaleHistories from "../hooks/useSaleHistory";
+import useSaleHistories from "../hooks/useSaleHistories";
 
 const Wrapper = styled.div`
     margin-top: 80px;
@@ -62,9 +61,8 @@ export default function Info(props) {
     const [deadline, setdeadline] = useState(0);
     const [totalSold, settotalSold] = useState(0);
     const [totalSale, settotalSale] = useState(1000);
-    const blockNumber = useBlockNumber(library)
     const chainName = useSelector(selectChainName)
-    const saleHistories = useSaleHistories(100)
+    const saleHistories = useSaleHistories(chainName)
 
     const getSaleInfo = useCallback(async () => {
         if(!contract) return
@@ -104,7 +102,7 @@ export default function Info(props) {
 
     useEffect(() => {
         getSaleInfo()
-    }, [blockNumber, getSaleInfo]);
+    }, [getSaleInfo]);
 
     useEffect(() => {
         getTimeInfo()
@@ -149,7 +147,7 @@ export default function Info(props) {
                         return (
                             <div key={index} className={`${index % 2 === 0 ? "row-even" : ""} table-row`}>
                                 <a style={{minWidth: 220}} href={`${ CHAIN_CONFIG[chainName].EXPLORER_URL }/address/${value.address}`} target="_blank" rel="noreferrer">{value.buyer}</a>
-                                <p>{value.price} {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
+                                <p>{formatCurrency(value.price, 2)} {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
                                 <p>{value.time}</p>
                             </div>
                         )

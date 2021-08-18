@@ -16,6 +16,7 @@ import { useWeb3React } from "@web3-react/core";
 import { useBalance } from "../hooks/useBalance";
 import ConnectWalletModal from "./ConnectWalletModal";
 import connectors from "../constants/connectors";
+import { CHAIN_CONFIG } from "../constants";
 
 const Wrapper = styled.header`
     background-color: #0F1323;
@@ -164,7 +165,7 @@ function Header() {
 
                         {account && <WalletInfo>
                             <ButtonConnected onClick={() => onClickWallet()}>
-                                <p>{formatCurrency(balance)} BNB</p>
+                                <p>{formatCurrency(balance)} {CHAIN_CONFIG[chainName].COIN_SYMBOL}</p>
                                 <canvas className="blockie"></canvas>
                             </ButtonConnected>
 

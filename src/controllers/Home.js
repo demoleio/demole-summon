@@ -6,7 +6,11 @@ import Summon from "../components/Summon";
 import { useWeb3React } from "@web3-react/core";
 import { getCookie, setCookie } from "../utils";
 import connectors from "../constants/connectors";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { setChainName } from "../redux/chainName";
+import { CHAIN_CONFIG } from "../constants";
+import WrongNetworkModal from "../components/WrongNetworkModal";
 
 const Wrapper = styled.section`
     background-color: #0F1323;
@@ -23,26 +27,35 @@ const ContainerStyled = styled(Container)`
 `;
 
 function Home() {
-    const {connector, active, activate} = useWeb3React()
+    const {connector, active, activate, chainId} = useWeb3React()
     const connectorName = getCookie("connector")
+    const chainName = getCookie("chainName")
     const [isOpen, setisOpen] = useState(false);
+    const dispatch = useDispatch();
 
-    if(!active) {
-        if(connectorName) {
-            activate(connectors[connectorName])
-        } else {
-            activate(connectors["network"])
-        }
+    if(chainName) {
+        dispatch(setChainName(chainName))
     }
 
-    if(active && !connectorName) {
-        Object.keys(connectors).map(key => {
-            if(connector === connectors[key] && key !== "network") {
-                setCookie("connector", key)
+    useEffect(() => {
+        if(!active) {
+            if(connectorName) {
+                activate(connectors[connectorName])
+            } else {
+                connectors["network"].changeChainId(CHAIN_CONFIG[chainName].CHAIN_ID)
+                activate(connectors["network"])
             }
-            return key
-        })
-    }
+        }
+
+        if(active && !connectorName) {
+            Object.keys(connectors).map(key => {
+                if(connector === connectors[key] && key !== "network") {
+                    setCookie("connector", key)
+                }
+                return key
+            })
+        }
+    }, [chainId]);
 
     return (
         <Wrapper>
@@ -56,6 +69,7 @@ function Home() {
                         <Info isOpen={isOpen} setisOpen={setisOpen}/>
                     </Col>
                 </Row>
+                {CHAIN_CONFIG[chainName].CHAIN_ID !== chainId && <WrongNetworkModal></WrongNetworkModal>}
             </ContainerStyled>
         </Wrapper>
     );

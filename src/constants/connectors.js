@@ -12,8 +12,6 @@ Object.keys(CHAIN_CONFIG).map(chain => {
     return true
 })
 
-console.log(supportedChainIds);
-
 const connectors = {
     network: new NetworkConnector({
         urls: rpc,

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import BinanceIcon from '../assests/img/icon_binance.png'
 import PolygonIcon from '../assests/img/icon_polygon.png'
 import { setChainName } from "../redux/chainName";
+import { setCookie } from "../utils";
 
 
 const Wrapper = styled.div`
@@ -41,13 +42,19 @@ const Wrapper = styled.div`
 export default function SelectChainPopover(props) {
     const dispatch = useDispatch()
 
+    function onSetChainName (chainName) {
+        dispatch(setChainName(chainName))
+        setCookie("chainName", chainName)
+        window.location.reload()
+    }
+
     return (
         <Wrapper>
-            <div onClick={() => dispatch(setChainName("bsc"))}>
+            <div onClick={() => onSetChainName("bsc")}>
                 <img src={BinanceIcon} alt="photos"></img>
                 <p>Binance Smart Chain</p>
             </div>
-            <div onClick={() => dispatch(setChainName("polygon"))}>
+            <div onClick={() => onSetChainName("polygon")}>
                 <img src={PolygonIcon} alt="photos"></img>
                 <p>Polygon</p>
             </div>

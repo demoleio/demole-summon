@@ -3,7 +3,9 @@ import SettingIcon from '../assests/img/settings.svg'
 import removePartOfString, { formatCurrency } from "../utils";
 import useAvatar from "../hooks/useAvatar";
 import { useWeb3React } from "@web3-react/core";
-
+import { CHAIN_CONFIG } from "../constants";
+import { useSelector } from "react-redux";
+import { selectChainName } from "../redux/chainName";
 
 const Wrapper = styled.div`
     background: #1A1E30;
@@ -70,6 +72,7 @@ const Menu = styled.ul`
 export default function WalletInfoPopover(props) {
     const {account} = useWeb3React()
     const {balance} = props
+    const chainName = useSelector(selectChainName)
 
     useAvatar(account)
 
@@ -79,7 +82,7 @@ export default function WalletInfoPopover(props) {
                 <canvas className="blockie"></canvas>
                 <div>
                     <p>{removePartOfString(account, 10, 37)}</p>
-                    <p>Balance: <span>{formatCurrency(balance)} BNB</span></p>
+                    <p>Balance: <span>{formatCurrency(balance, 2)} {CHAIN_CONFIG[chainName].COIN_SYMBOL}</span></p>
                 </div>
                 <img src={SettingIcon} alt="photos"></img>
             </Head>

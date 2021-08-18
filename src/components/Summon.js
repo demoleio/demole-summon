@@ -1,5 +1,5 @@
 import { useWeb3React } from "@web3-react/core";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { fromWei, toWei } from "web3-utils";
@@ -8,10 +8,12 @@ import openEgg from '../assests/video/open-egg.mp4'
 import { useBalance } from "../hooks/useBalance";
 import useSaleContract from "../hooks/useSaleContract";
 import { selectChainName } from "../redux/chainName";
-import ServerAPI from "../ServerAPI";
 import ButtonSummon from "./ButtonSummon";
 import Alert from "./Alert";
 import useNFTContract from "../hooks/useNFTContract";
+import useUserState from "../hooks/useUserState";
+import WrongNetworkModal from "./WrongNetworkModal";
+import { CHAIN_CONFIG } from "../constants";
 
 const Wrapper = styled.section`
     border-radius: 20px;
@@ -25,6 +27,7 @@ const Monster = styled.div`
     justify-content: center;
     height: 593px;
     position: relative;
+    background-image: radial-gradient(46.9% 46.9% at 49.88% 50.12%, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.28) 0.01%, rgba(255, 255, 255, 0) 107.22%);;
 
     & > .dragon {
         margin-left: 70px;
@@ -50,9 +53,40 @@ export default function Summon(props) {
     const [error, seterror] = useState(false);
     const [loading, setloading] = useState(false);
     const [success, setsuccess] = useState(false);
-
+    const userState = useUserState(chainName, account)
     const video = useRef(null)
     const character = useRef(null)
+
+    useEffect(() => {
+        if(userState.state === "NOT_CONNECTED") {
+            seterror("Please connect wallet")
+        }
+
+        if(userState.state === "NOT_REGISTERED") {
+            setsuccess(false)
+            seterror("You have not registered to join Summon.\n\n Please register via Telegram Bot @demole_bot")
+            setloading(true)
+            video.current.style.display = "block"
+            character.current.style.opacity = 0
+        }
+
+        if(userState.state === "REGISTERED") {
+            setsuccess(false)
+            seterror(false)
+            setloading(false)
+            video.current.style.display = "block"
+            character.current.style.opacity = 0
+        }
+
+        if(userState.state === "BOUGHT") {
+            setsuccess(`Congratulations! You have received tokenId #${userState.data}`)
+            seterror(false)
+            setloading(true)
+            video.current.style.display = "none"
+            character.current.style.opacity = 1
+        }
+
+    }, [userState])
 
     function startAnimation() {
         character.current.style.opacity = 0
@@ -67,43 +101,31 @@ export default function Summon(props) {
         // reset states
         seterror(false)
         setloading(false)
-        // check connect wallet
-        if(!account) {
-            return seterror("Please connect wallet")
-        }
         // check balance
         const BNBRequireInWei = await contract.methods.getBNBPrice().call()
         const BNBRequire = parseFloat(fromWei(BNBRequireInWei))
         if (balance < BNBRequire) {
             return seterror("Insufficient balance")
         }
-        // check address in whitelist
-        setloading("Check registration...")
-        ServerAPI.getProof(chainName, account).then(async proof => {
-            const ordered = await contract.methods.ordered(account).call()
-            if(ordered) return seterror("You have already summoned")
-            setloading("Waiting for confirmation...")
-            contract.methods.order(account.toLowerCase(), proof).send({
-                from: account,
-                value: toWei((BNBRequire + 0.001).toString())
-            }).then(result => {
-                setloading("Retrieving tokenId...")
-                let interval = setInterval( async () => {
-                    const tokensOfOwner = await nftContract.methods.tokensOfOwner(account).call()
-
-                    if(tokensOfOwner.length > 0) {
-                        clearInterval(interval)
-                        setloading(false)
-                        setsuccess(`Congratulations! You have received tokenId #${tokensOfOwner[0]}`)
-                        startAnimation()
-                    }
-                }, 1000)
-            }).catch(error => {
-                seterror(error.message ? error.message : error)
-                setloading(false)
-            })
+        setloading("Wating for confirmation...")
+        const proof = userState.data
+        contract.methods.order(account.toLowerCase(), proof).send({
+            from: account,
+            value: toWei((BNBRequire + 0.001).toString())
+        }).then(result => {
+            setloading("Retrieving tokenId...")
+            let interval = setInterval( async () => {
+                const tokensOfOwner = await nftContract.methods.tokensOfOwner(account).call()
+                if(tokensOfOwner.length > 0) {
+                    clearInterval(interval)
+                    setloading(false)
+                    setsuccess(`Congratulations! You have received tokenId #${tokensOfOwner[0]}`)
+                    startAnimation()
+                }
+            }, 1000)
         }).catch(error => {
-            seterror(error)
+            seterror(error.message ? error.message : error)
+            setloading(false)
         })
     }
 
@@ -113,7 +135,7 @@ export default function Summon(props) {
                 <video preload="true" src={openEgg} playsInline={true} ref={video}></video>
                 <img ref={character} className="dragon" src={dragon} alt="character"></img>
             </Monster>
-            <ButtonSummon onClick={summon} disabled={!isOpen || loading} />
+            <ButtonSummon onClick={summon} disabled={!isOpen || loading || !account} />
             {error && <Alert type="error">{error}</Alert>}
             {(loading && !error) && <Alert type="default">{loading}</Alert>}
             {success && <Alert type="success">{success}</Alert>}
