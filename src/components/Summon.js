@@ -146,7 +146,7 @@ export default function Summon(props) {
     return (
         <Wrapper>
             <Monster>
-                <video preload="true" src={openEgg} playsInline={true} ref={video}></video>
+                <video preload="metadata" src={openEgg + "#t=0.001"} playsInline={true} ref={video}></video>
                 <img ref={character} className="dragon" src={dragon} alt="character"></img>
             </Monster>
             <ButtonSummon onClick={summon} disabled={!isOpen || loading || !account} />
