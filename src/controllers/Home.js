@@ -7,8 +7,8 @@ import { useWeb3React } from "@web3-react/core";
 import { getCookie, setCookie } from "../utils";
 import connectors from "../constants/connectors";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { setChainName } from "../redux/chainName";
+import { useDispatch, useSelector } from "react-redux";
+import { selectChainName, setChainName } from "../redux/chainName";
 import { CHAIN_CONFIG } from "../constants";
 import WrongNetworkModal from "../components/WrongNetworkModal";
 
@@ -29,12 +29,13 @@ const ContainerStyled = styled(Container)`
 function Home() {
     const {connector, active, activate, chainId, error} = useWeb3React()
     const connectorName = getCookie("connector")
-    const chainName = getCookie("chainName")
+    const chainNameSaved = getCookie("chainName")
+    const chainName = useSelector(selectChainName)
     const [isOpen, setisOpen] = useState(false);
     const dispatch = useDispatch();
 
-    if(chainName) {
-        dispatch(setChainName(chainName))
+    if(chainNameSaved) {
+        dispatch(setChainName(chainNameSaved))
     }
 
     useEffect(() => {
